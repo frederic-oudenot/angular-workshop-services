@@ -8,15 +8,14 @@ import { Observable, of } from 'rxjs';
 export class ArticleService {
   private _articles: Article[] = [];
   private _articlesDeleted: Article[] = [];
-  private writeTable: string = '';
-  private readTable: string = '';
 
   constructor(
     @Inject('writeTable') writeTable: string,
     @Inject('readTable') readTable: string
   ) {
-    this.writeTable = writeTable;
-    this.readTable = readTable;
+    (this as any)[writeTable] = writeTable;
+    (this as any)[readTable] = readTable;
+    console.log("🚀 ~ ArticleService ~ writeTable:", writeTable)
     console.log("🚀 ~ ArticleService ~ readTable:", readTable)
   }
 
@@ -72,10 +71,10 @@ export class ArticleService {
     this._articles = JSON.parse(articles || '[]');
 
     const articlesDeleted = localStorage.getItem('articlesDeleted');
-    this.readTable =JSON.parse(articlesDeleted || '[]');
-    console.log("🚀 ~ ArticleService ~ getFromLocalStorage ~ this.readTable:", this.readTable)
+    // this.readTable =JSON.parse(articlesDeleted || '[]');
+    // console.log("🚀 ~ ArticleService ~ getFromLocalStorage ~ this.readTable:", this.readTable)
     this._articlesDeleted = JSON.parse(articlesDeleted || '[]');
-    console.log("🚀 ~ ArticleService ~ getFromLocalStorage ~ this._articlesDeleted:", this._articlesDeleted)
+    // console.log("🚀 ~ ArticleService ~ getFromLocalStorage ~ this._articlesDeleted:", this._articlesDeleted)
 
     return {
       articles: of(this._articles),
