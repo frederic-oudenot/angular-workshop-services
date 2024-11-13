@@ -32,7 +32,7 @@ Il est préférable de déporter toute manipulation de tableau, de localStorage 
 
 Le composant `ArticleListDeletedComponent` n'est pas opérationnel, aucun article supprimé n'est affiché dans le tableau donc il nous est impossible de restaurer un article supprimé par erreur.
 
-- Injectee le service `ArticleService` dans le composant `ArticleListDeletedComponent`.
+- Injecte le service `ArticleService` dans le composant `ArticleListDeletedComponent`.
 - code la **récupération** des articles supprimés
 - code la **restauration** des articles supprimés
 
