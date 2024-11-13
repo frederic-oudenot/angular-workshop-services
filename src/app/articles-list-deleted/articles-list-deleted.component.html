@@ -10,14 +10,14 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let article of articlesDeleted">
+    <tr *ngFor="let article of articlesDeleted$ | async">
       <td>{{ article.id }}</td>
       <td>{{ article.name }}</td>
       <td>{{ article.price }}</td>
       <td>{{ article.stock }}</td>
       <td>{{ article.contact }}</td>
       <td>
-        <button type="submit" class="btn btn-danger" (click)="restore()">
+        <button type="submit" class="btn btn-danger" (click)="restore(article)">
           <i class="fas fa-undo"></i>
         </button>
       </td>
