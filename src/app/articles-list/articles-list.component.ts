@@ -33,11 +33,11 @@ export class ArticlesListComponent {
 
   //Création d'un nouvel article et ajout au tableau
   createArticle(article: Article): void {
-    this.articleService.create('create', article);
+    this.articleService.create(article);
   }
 
   // Suppression d'un article
   deleteArticle(article: Article): void {
-    this.articleService.delete(article);
+    this.articleService.update(article);
   }
 }

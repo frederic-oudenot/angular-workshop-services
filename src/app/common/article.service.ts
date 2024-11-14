@@ -6,101 +6,94 @@ import { Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class ArticleService {
-  private _articles: Article[] = [];
-  private _articlesDeleted: Article[] = [];
+  private articles: {
+    articles: Observable<Article[]>;
+    articlesDeleted: Observable<Article[]>;
+  } = this.getFromLocalStorage()
+
+  private writeTable: Article[] = [];
+  private readTable: Article[] = [];
+
+  private write: string;
+  private read: string;
 
   constructor(
     @Inject('writeTable') writeTable: string,
     @Inject('readTable') readTable: string
   ) {
-    (this as any)[writeTable] = writeTable;
-    (this as any)[readTable] = readTable;
-    console.log("🚀 ~ ArticleService ~ writeTable:", writeTable)
-    console.log("🚀 ~ ArticleService ~ readTable:", readTable)
+    this.writeTable = (this as any)[writeTable];
+    this.write = writeTable;
+    this.readTable = (this as any)[readTable];
+    this.read = readTable;
   }
 
   // Création d'un article
-  create(action: string, article: Article): void {
-    // Ajout de l'article à la liste des articles
-    switch (action) {
-      case 'create':
-        this._articles.push(article);
-        localStorage.setItem('articles', JSON.stringify(this._articles));
-        break;
-      case 'delete':
-        this._articlesDeleted.push(article);
-        localStorage.setItem(
-          'articlesDeleted',
-          JSON.stringify(this._articlesDeleted)
-        );
-        break;
-      default:
-        break;
-    }
+  create(article: Article): void {
+    this.writeTable.push(article);
+    this.setDataLocalStorage(this.write, this.writeTable);
   }
+
+    // // Restaurion d'un article
+    // update(article: Article) {
+    //   this.create(article);
+    //   const index = this.readTable.findIndex((x: Article) => x.id === article.id);
+    //   // Suppression de l'article du tableau
+    //   this.readTable.splice(index, 1);
+    //   this.setDataLocalStorage(this.read, this.readTable);
+    // }
 
   // Suppression d'un article
-  delete(article: Article) {
-    this.create('delete', article);
-    // Récupération de l'index de l'article à supprimer
-    const index = this._articles.findIndex((x) => x.id === article.id);
-    // Suppression de l'article du tableau
-    this._articles.splice(index, 1);
-    localStorage.setItem('articles', JSON.stringify(this._articles));
-  }
-
-  // Restaurion d'un article
   update(article: Article) {
-    this.create('create', article);
+    this.readTable.push(article);
     // Récupération de l'index de l'article à supprimer
-    const index = this._articlesDeleted.findIndex((x) => x.id === article.id);
-    // Suppression de l'article du tableau
-    this._articlesDeleted.splice(index, 1);
-    localStorage.setItem(
-      'articlesDeleted',
-      JSON.stringify(this._articlesDeleted)
+    const index = this.writeTable.findIndex(
+      (x: Article) => x.id === article.id
     );
+    // Suppression de l'article du tableau
+    this.writeTable.splice(index, 1);
+    this.setDataLocalStorage(this.write, this.writeTable);
+    this.setDataLocalStorage(this.read, this.readTable);
   }
 
-  // Récupération des articles en format 'string'
+  setDataLocalStorage(name: string, data: Article[]) {
+    localStorage.setItem(`${name}`, JSON.stringify(data));
+  }
+
+  getDataLocalStorage(name: string) {
+    const stringData = localStorage.getItem(`${name}`);
+    return JSON.parse(stringData || '[]');
+  }
+
   getFromLocalStorage(): {
     articles: Observable<Article[]>;
     articlesDeleted: Observable<Article[]>;
   } {
-    const articles = localStorage.getItem('articles');
-    this._articles = JSON.parse(articles || '[]');
+    this.writeTable = this.getDataLocalStorage(this.write);
+    this.readTable = this.getDataLocalStorage(this.read);
 
-    const articlesDeleted = localStorage.getItem('articlesDeleted');
-    // this.readTable =JSON.parse(articlesDeleted || '[]');
-    // console.log("🚀 ~ ArticleService ~ getFromLocalStorage ~ this.readTable:", this.readTable)
-    this._articlesDeleted = JSON.parse(articlesDeleted || '[]');
-    // console.log("🚀 ~ ArticleService ~ getFromLocalStorage ~ this._articlesDeleted:", this._articlesDeleted)
+    if (this.write === '_articles') {
+      return {
+        articles: of(this.writeTable),
+        articlesDeleted: of(this.readTable)
+      }
+    } else {
+      return {
+        articles: of(this.readTable),
+        articlesDeleted: of(this.writeTable)
+      }
+    }
 
-    return {
-      articles: of(this._articles),
-      articlesDeleted: of(this._articlesDeleted),
-    };
-    // Récupération des articles en format 'string'
-    // switch (view) {
-    //   case 'createView': {
-    //     // Récupération des articles en format 'string'
-    //     const stringData = localStorage.getItem('articles');
-    //     // Conversion des données de type 'string' en objet Json
-    //     this._articles = JSON.parse(stringData || '[]');
 
-    //     return of(this._articles);
-    //   }
-    //   case 'deleteView': {
-    //     // Récupération des articles en format 'string'
-    //     const stringData = localStorage.getItem('articlesDeleted');
-    //     // Conversion des données de type 'string' en objet Json
-    //     return of(this._articlesDeleted = JSON.parse(stringData || '[]'));
-    //   }
-    //   default:
-    //     // Récupération des articles en format 'string'
-    //     const stringData = localStorage.getItem('articles');
-    //     // Conversion des données de type 'string' en objet Json
-    //     return of(this._articles = JSON.parse(stringData || '[]'));
+    // if (this.write === '_articles') {
+    //   return {
+    //     articles: of(this.writeTable),
+    //     articlesDeleted: of(this.readTable),
+    //   };
+    // } else {
+    //   return {
+    //     articles: of(this.readTable),
+    //     articlesDeleted: of(this.writeTable),
+    //   };
     // }
   }
 }
